@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Math vs Pocong - Mashar Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Quicksand:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --toska: #4ECDC4;
+            --dark: #2F3E46;
+            --red: #FF6B6B;
+            --accent-yellow: #FFE66D;
+        }
+
+        body { 
+            margin: 0; 
+            font-family: 'Quicksand', sans-serif; 
+            background: #1a1a1a; 
+            color: white; 
+            overflow: hidden; 
+            user-select: none; 
+        }
+
+        /* --- SELECTION SCREEN --- */
+        #selection-screen {
+            position: fixed; width: 100%; height: 100%; 
+            background: linear-gradient(135deg, #1a1a1a, #4a148c); 
+            z-index: 500; display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; text-align: center;
+        }
+        .box-select {
+            background: rgba(255, 255, 255, 0.1); padding: 25px; 
+            border-radius: 30px; width: 85%; max-width: 500px;
+            backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2);
+        }
+        .btn-sel { 
+            padding: 12px; border: none; border-radius: 12px; 
+            background: white; cursor: pointer; font-weight: bold; 
+            font-family: inherit; transition: 0.2s;
+        }
+        .btn-sel.active { background: var(--accent-yellow); border: 3px solid #f39c12; transform: scale(1.05); }
+        .grid-select { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        
+        /* --- ARENA --- */
+        #game-container { display: none; width: 100vw; height: 100vh; }
+        #arena { 
+            height: 40vh; 
+            background: linear-gradient(to bottom, #0f2027, #203a43, #2c5364); 
+            position: relative; overflow: hidden; 
+        }
+        #hp-container { 
+            position: absolute; top: 20px; width: 80%; left: 10%; 
+            height: 15px; background: rgba(0,0,0,0.5); 
+            border-radius: 10px; border: 2px solid white; overflow: hidden; 
+        }
+        #hp-bar { width: 100%; height: 100%; background: var(--red); transition: 0.3s; }
+        
+        .char { position: absolute; bottom: 15%; font-size: 80px; transition: 0.3s; z-index: 5; }
+        #siswa { left: 10%; }
+        #pocong { right: 10%; filter: drop-shadow(0 0 15px rgba(255,255,255,0.3)); }
+        
+        /* --- ANIMASI --- */
+        .batu { position: absolute; font-size: 35px; z-index: 10; transition: transform 0.6s cubic-bezier(0.5, -0.5, 0.5, 1.5); }
+        .burn { animation: burnEffect 0.5s forwards; }
+        @keyframes burnEffect {
+            0% { filter: hue-rotate(0deg) brightness(1) scale(1); }
+            50% { filter: hue-rotate(-50deg) brightness(5) scale(1.3); }
+            100% { filter: hue-rotate(0deg) brightness(1) scale(1); }
+        }
+
+        /* --- UI CONTROLS --- */
+        #ui-box { height: 60vh; background: #eef2f5; display: flex; flex-direction: column; align-items: center; padding: 15px; box-sizing: border-box; }
+        #soal-display { 
+            background: var(--toska); width: 100%; max-width: 500px; padding: 20px; 
+            border-radius: 25px; text-align: center; font-size: 2.2em; font-weight: 800; 
+            margin-bottom: 10px; color: white; box-shadow: 0 8px 0 #3bb3a9; 
+        }
+        #input-display { 
+            background: white; color: var(--dark); width: 80%; max-width: 400px; 
+            padding: 10px; border-radius: 15px; text-align: center; font-size: 2.5em; 
+            min-height: 60px; margin-bottom: 15px; border: 4px solid #ddd; font-weight: 800;
+        }
+        
+        /* --- NUMPAD --- */
+        #numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; max-width: 400px; }
+        .btn-num { 
+            padding: 18px; border: none; border-radius: 18px; background: white; 
+            color: var(--dark); font-size: 1.6em; font-weight: 800; cursor: pointer; 
+            box-shadow: 0 6px 0 #ccc; font-family: inherit;
+        }
+        .btn-num:active { transform: translateY(4px); box-shadow: none; }
+        .btn-del { background: var(--red); color: white; box-shadow: 0 6px 0 #d65555; }
+        .btn-enter { background: #2ecc71; color: white; box-shadow: 0 6px 0 #27ae60; grid-column: span 2; }
+
+        /* --- WIN OVERLAY --- */
+        #win-overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.95); display: none; flex-direction: column; 
+            align-items: center; justify-content: center; z-index: 1000; 
+        }
+    </style>
+</head>
+<body id="main">
+
+    <div id="selection-screen">
+        <div class="box-select">
+            <h1 style="color:var(--accent-yellow); font-family:'Permanent Marker'; font-size:2.5em; margin:0 0 20px 0;">MATH VS POCONG</h1>
+            
+            <p style="margin-bottom:10px; font-weight:bold;">PILIH OPERASI:</p>
+            <div class="grid-select" id="op-select">
+                <button class="btn-sel active" onclick="setOp('+', this)">➕ Tambah</button>
+                <button class="btn-sel" onclick="setOp('-', this)">➖ Kurang</button>
+                <button class="btn-sel" onclick="setOp('x', this)">✖️ Kali</button>
+                <button class="btn-sel" onclick="setOp(':', this)">➗ Bagi</button>
+                <button class="btn-sel" style="grid-column: span 2;" onclick="setOp('campur', this)">🔀 Campuran</button>
+            </div>
+            
+            <p style="margin-bottom:10px; font-weight:bold;">TINGKAT KESULITAN:</p>
+            <div class="grid-select" id="lv-select" style="grid-template-columns: 1fr 1fr 1fr;">
+                <button class="btn-sel active" onclick="setLevel('mudah', this)">Mudah</button>
+                <button class="btn-sel" onclick="setLevel('sedang', this)">Sedang</button>
+                <button class="btn-sel" onclick="setLevel('ahli', this)">Ahli</button>
+            </div>
+
+            <button onclick="startGame()" style="margin-top:20px; padding:15px 40px; background:#2ecc71; color:white; border:none; border-radius:50px; font-size:1.4em; font-weight:800; cursor:pointer; box-shadow:0 6px 0 #27ae60; width:100%;">MULAI PERANG!</button>
+        </div>
+        <p style="margin-top:20px; font-size:12px; opacity:0.7;">Developed by Mashar | UPTD SD Negeri 2 Jaya Asri</p>
+    </div>
+
+    <div id="game-container">
+        <div id="arena">
+            <div id="hp-container"><div id="hp-bar"></div></div>
+            <div id="siswa" class="char">🧑‍🎓</div>
+            <div id="pocong" class="char">👻</div>
+            <div id="projectiles"></div>
+        </div>
+
+        <div id="ui-box">
+            <div id="soal-display">...</div>
+            <div id="input-display"></div>
+            <div id="numpad">
+                <button class="btn-num" onclick="press('1')">1</button>
+                <button class="btn-num" onclick="press('2')">2</button>
+                <button class="btn-num" onclick="press('3')">3</button>
+                <button class="btn-num" onclick="press('4')">4</button>
+                <button class="btn-num" onclick="press('5')">5</button>
+                <button class="btn-num" onclick="press('6')">6</button>
+                <button class="btn-num" onclick="press('7')">7</button>
+                <button class="btn-num" onclick="press('8')">8</button>
+                <button class="btn-num" onclick="press('9')">9</button>
+                <button class="btn-num btn-del" onclick="del()">HAPUS</button>
+                <button class="btn-num" onclick="press('0')">0</button>
+                <button class="btn-num btn-enter" onclick="check()">ENTER</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="win-overlay">
+        <h1 style="font-family: 'Permanent Marker'; font-size: 3.5em; color: var(--accent-yellow); margin:0;">POCONG KALAH!</h1>
+        <p style="font-size: 1.5em; margin: 20px 0;">Hebat! Matematika kamu luar biasa.</p>
+        <div style="font-size: 80px; margin-bottom: 30px;">🏆🔥💀</div>
+        <button onclick="location.reload()" style="padding: 15px 50px; font-size: 1.2em; border-radius: 50px; cursor: pointer; background:white; font-weight:bold; border:none; box-shadow:0 5px 0 #ccc;">MAIN LAGI</button>
+    </div>
+
+    <script>
+        let currentAnswer = 0;
+        let pocongHP = 10;
+        let userInput = "";
+        let selectedOp = "+";
+        let selectedLevel = "mudah";
+
+        function setOp(op, btn) {
+            selectedOp = op;
+            document.querySelectorAll('#op-select .btn-sel').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        function setLevel(lv, btn) {
+            selectedLevel = lv;
+            document.querySelectorAll('#lv-select .btn-sel').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        function startGame() {
+            document.getElementById('selection-screen').style.display = 'none';
+            document.getElementById('game-container').style.display = 'block';
+            pocongHP = 10;
+            document.getElementById('hp-bar').style.width = "100%";
+            generateSoal();
+        }
+
+        function generateSoal() {
+            let a, b, op;
+            let max = (selectedLevel === "mudah") ? 10 : (selectedLevel === "sedang") ? 30 : 100;
+            
+            op = (selectedOp === "campur") ? ["+", "-", "x", ":"][Math.floor(Math.random()*4)] : selectedOp;
+
+            if (op === "+") {
+                a = Math.floor(Math.random() * max) + 1;
+                b = Math.floor(Math.random() * max) + 1;
+                currentAnswer = a + b;
+                displaySoal(`${a} + ${b}`);
+            } 
+            else if (op === "-") {
+                a = Math.floor(Math.random() * max) + 10;
+                b = Math.floor(Math.random() * a) + 1;
+                currentAnswer = a - b;
+                displaySoal(`${a} - ${b}`);
+            } 
+            else if (op === "x") {
+                let mX = (selectedLevel === "mudah") ? 5 : (selectedLevel === "sedang") ? 10 : 15;
+                a = Math.floor(Math.random() * mX) + 1;
+                b = Math.floor(Math.random() * mX) + 1;
+                currentAnswer = a * b;
+                displaySoal(`${a} x ${b}`);
+            } 
+            else if (op === ":") {
+                let mD = (selectedLevel === "mudah") ? 5 : (selectedLevel === "sedang") ? 10 : 12;
+                let b_div = Math.floor(Math.random() * mD) + 1;
+                currentAnswer = Math.floor(Math.random() * mD) + 1;
+                a = b_div * currentAnswer;
+                displaySoal(`${a} : ${b_div}`);
+            }
+        }
+
+        function displaySoal(txt) {
+            document.getElementById('soal-display').innerText = txt + " = ?";
+            userInput = "";
+            updateDisplay();
+        }
+
+        function press(num) {
+            if(userInput.length < 6) userInput += num;
+            updateDisplay();
+        }
+
+        function del() {
+            userInput = userInput.slice(0, -1);
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            document.getElementById('input-display').innerText = userInput;
+        }
+
+        function check() {
+            if (userInput === "") return;
+            if (parseInt(userInput) === currentAnswer) {
+                throwStone();
+            } else {
+                const ui = document.getElementById('ui-box');
+                ui.style.background = "#ffcccc";
+                setTimeout(() => ui.style.background = "#eef2f5", 300);
+                userInput = "";
+                updateDisplay();
+            }
+        }
+
+        function throwStone() {
+            const projContainer = document.getElementById('projectiles');
+            const batu = document.createElement('div');
+            batu.className = 'batu';
+            batu.innerText = '🪨';
+            batu.style.left = '15%';
+            batu.style.bottom = '20%';
+            projContainer.appendChild(batu);
+
+            setTimeout(() => {
+                batu.style.transform = 'translate(70vw, -150px) rotate(360deg)';
+            }, 50);
+
+            setTimeout(() => {
+                batu.remove();
+                hitPocong();
+            }, 600);
+        }
+
+        function hitPocong() {
+            const pocong = document.getElementById('pocong');
+            pocongHP--;
+            
+            pocong.classList.add('burn');
+            setTimeout(() => pocong.classList.remove('burn'), 500);
+
+            document.getElementById('hp-bar').style.width = (pocongHP * 10) + "%";
+
+            if (pocongHP <= 0) {
+                document.getElementById('win-overlay').style.display = 'flex';
+            } else {
+                generateSoal();
+            }
+        }
+    </script>
+</body>
+</html>
