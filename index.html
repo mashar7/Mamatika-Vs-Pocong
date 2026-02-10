@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ghost Math Duel v1.1 - Fire Particles</title>
+    <title>Ghost Math Duel v1.1 - 100 Particles Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Quicksand:wght@700;800&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -45,13 +45,12 @@
             position: relative; overflow: hidden; border-bottom: 3px solid #333;
         }
         
-        /* Karakter */
         .char { position: absolute; bottom: 5%; width: 220px; transition: 0.3s; z-index: 5; }
         .char img { width: 100%; height: auto; filter: drop-shadow(0 0 20px rgba(0,0,0,0.6)); }
         #p1-char { left: 15%; }
         #p2-char { right: 15%; transform: scaleX(-1); }
 
-        /* Canvas Partikel (Layer di atas karakter) */
+        /* Canvas Partikel */
         #fireCanvas {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none; z-index: 10;
@@ -137,7 +136,8 @@
 
     <div id="game-container">
         <div id="arena">
-            <canvas id="fireCanvas"></canvas> <div class="hp-box" style="left:5%;"><div id="hp-bar-1" style="width:100%; height:100%; background:var(--toska);"></div></div>
+            <canvas id="fireCanvas"></canvas>
+            <div class="hp-box" style="left:5%;"><div id="hp-bar-1" style="width:100%; height:100%; background:var(--toska);"></div></div>
             <div class="hp-box" style="right:5%;"><div id="hp-bar-2" style="width:100%; height:100%; background:var(--red);"></div></div>
             <div id="p1-char" class="char"><img src="assets/images/pocong.png"></div>
             <div id="p2-char" class="char"><img src="assets/images/hantu.png"></div>
@@ -199,7 +199,7 @@
         let ans1 = 0, ans2 = 0, hp1 = 10, hp2 = 10;
         let in1 = "", in2 = "";
 
-        // --- SISTEM PARTIKEL API ---
+        // --- SISTEM PARTIKEL API (UPDATE: 100 Partikel Kecil) ---
         const canvas = document.getElementById('fireCanvas');
         const ctx = canvas.getContext('2d');
         let particles = [];
@@ -216,16 +216,19 @@
                 this.x = x;
                 this.y = y;
                 this.color = color;
-                this.size = Math.random() * 8 + 2;
-                this.speedY = Math.random() * -5 - 2;
-                this.speedX = Math.random() * 4 - 2;
+                // Partikel lebih kecil: 1 sampai 4 pixel
+                this.size = Math.random() * 3 + 1; 
+                this.speedY = Math.random() * -4 - 1;
+                this.speedX = (Math.random() - 0.5) * 6; // Sebaran horizontal lebih lebar
                 this.opacity = 1;
+                this.gravity = 0.05; // Sedikit tarikan gravitasi agar partikel melengkung
             }
             update() {
                 this.y += this.speedY;
                 this.x += this.speedX;
-                this.opacity -= 0.02;
-                if (this.size > 0.2) this.size -= 0.1;
+                this.speedY += this.gravity;
+                this.opacity -= 0.015; // Menghilang lebih lambat
+                if (this.size > 0.1) this.size -= 0.05;
             }
             draw() {
                 ctx.globalAlpha = this.opacity;
@@ -237,8 +240,9 @@
         }
 
         function createFire(x, y) {
-            const colors = ['#FF4500', '#FF8C00', '#FFD700', '#FFFFFF'];
-            for (let i = 0; i < 40; i++) {
+            const colors = ['#FF4500', '#FF8C00', '#FFD700', '#FFA500', '#FFFFFF'];
+            // 100 Partikel
+            for (let i = 0; i < 100; i++) {
                 particles.push(new Particle(x, y, colors[Math.floor(Math.random() * colors.length)]));
             }
         }
@@ -248,7 +252,7 @@
             for (let i = 0; i < particles.length; i++) {
                 particles[i].update();
                 particles[i].draw();
-                if (particles[i].opacity <= 0) {
+                if (particles[i].opacity <= 0 || particles[i].size <= 0.1) {
                     particles.splice(i, 1);
                     i--;
                 }
@@ -321,12 +325,11 @@
         function hit(p) {
             if(p === 1) hp2--; else hp1--;
             
-            // Tentukan koordinat target untuk api
             const targetChar = document.getElementById(p === 1 ? 'p2-char' : 'p1-char');
             const rect = targetChar.getBoundingClientRect();
             const arenaRect = document.getElementById('arena').getBoundingClientRect();
             
-            // Trigger Api
+            // Efek Partikel 100 titik
             createFire(rect.left + rect.width / 2, rect.top - arenaRect.top + rect.height / 2);
 
             targetChar.style.filter = "brightness(4) saturate(2)";
