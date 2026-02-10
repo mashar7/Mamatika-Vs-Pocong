@@ -3,23 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Math vs Pocong - Mashar Edition</title>
+    <title>Math vs Pocong - 2 Player Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Quicksand:wght@700;800&display=swap" rel="stylesheet">
     <style>
         :root {
             --toska: #4ECDC4;
             --dark: #2F3E46;
             --red: #FF6B6B;
+            --blue: #54a0ff;
             --accent-yellow: #FFE66D;
         }
 
         body { 
-            margin: 0; 
-            font-family: 'Quicksand', sans-serif; 
-            background: #1a1a1a; 
-            color: white; 
-            overflow: hidden; 
-            user-select: none; 
+            margin: 0; font-family: 'Quicksand', sans-serif; background: #1a1a1a; 
+            color: white; overflow: hidden; user-select: none; touch-action: manipulation;
         }
 
         /* --- SELECTION SCREEN --- */
@@ -30,266 +27,259 @@
             align-items: center; justify-content: center; text-align: center;
         }
         .box-select {
-            background: rgba(255, 255, 255, 0.1); padding: 25px; 
-            border-radius: 30px; width: 85%; max-width: 500px;
+            background: rgba(255, 255, 255, 0.1); padding: 20px; 
+            border-radius: 25px; width: 90%; max-width: 450px;
             backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2);
         }
         .btn-sel { 
-            padding: 12px; border: none; border-radius: 12px; 
+            padding: 10px; border: none; border-radius: 10px; 
             background: white; cursor: pointer; font-weight: bold; 
-            font-family: inherit; transition: 0.2s;
+            font-family: inherit; transition: 0.2s; font-size: 0.9em;
         }
-        .btn-sel.active { background: var(--accent-yellow); border: 3px solid #f39c12; transform: scale(1.05); }
-        .grid-select { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .btn-sel.active { background: var(--accent-yellow); border: 2px solid #f39c12; transform: scale(1.05); }
+        .grid-select { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px; }
         
         /* --- ARENA --- */
-        #game-container { display: none; width: 100vw; height: 100vh; }
+        #game-container { display: none; width: 100vw; height: 100vh; flex-direction: column; }
         #arena { 
-            height: 40vh; 
-            background: linear-gradient(to bottom, #0f2027, #203a43, #2c5364); 
-            position: relative; overflow: hidden; 
+            height: 35vh; background: linear-gradient(to bottom, #0f2027, #203a43, #2c5364); 
+            position: relative; overflow: hidden; border-bottom: 4px solid #333;
         }
-        #hp-container { 
-            position: absolute; top: 20px; width: 80%; left: 10%; 
-            height: 15px; background: rgba(0,0,0,0.5); 
-            border-radius: 10px; border: 2px solid white; overflow: hidden; 
-        }
-        #hp-bar { width: 100%; height: 100%; background: var(--red); transition: 0.3s; }
         
-        .char { position: absolute; bottom: 15%; font-size: 80px; transition: 0.3s; z-index: 5; }
-        #siswa { left: 10%; }
-        #pocong { right: 10%; filter: drop-shadow(0 0 15px rgba(255,255,255,0.3)); }
+        .char { position: absolute; bottom: 10%; font-size: 60px; transition: 0.3s; z-index: 5; }
+        #p1-char { left: 10%; }
+        #p2-char { right: 10%; } /* Bisa jadi Pocong atau Player 2 */
         
-        /* --- ANIMASI --- */
-        .batu { position: absolute; font-size: 35px; z-index: 10; transition: transform 0.6s cubic-bezier(0.5, -0.5, 0.5, 1.5); }
-        .burn { animation: burnEffect 0.5s forwards; }
-        @keyframes burnEffect {
-            0% { filter: hue-rotate(0deg) brightness(1) scale(1); }
-            50% { filter: hue-rotate(-50deg) brightness(5) scale(1.3); }
-            100% { filter: hue-rotate(0deg) brightness(1) scale(1); }
-        }
+        .hp-label { position: absolute; top: 10px; font-size: 12px; font-weight: 800; width: 40%; text-align: center; }
+        .hp-box { position: absolute; top: 30px; width: 40%; height: 10px; background: rgba(0,0,0,0.5); border-radius: 5px; overflow: hidden; border: 1px solid white; }
 
         /* --- UI CONTROLS --- */
-        #ui-box { height: 60vh; background: #eef2f5; display: flex; flex-direction: column; align-items: center; padding: 15px; box-sizing: border-box; }
-        #soal-display { 
-            background: var(--toska); width: 100%; max-width: 500px; padding: 20px; 
-            border-radius: 25px; text-align: center; font-size: 2.2em; font-weight: 800; 
-            margin-bottom: 10px; color: white; box-shadow: 0 8px 0 #3bb3a9; 
+        #ui-wrapper { height: 65vh; display: grid; grid-template-columns: 1fr; background: #eef2f5; }
+        .player-panel { display: flex; flex-direction: column; align-items: center; padding: 10px; box-sizing: border-box; border-right: 1px solid #ddd; }
+        
+        .soal-box { 
+            background: var(--toska); width: 100%; padding: 12px; 
+            border-radius: 15px; text-align: center; font-size: 1.5em; font-weight: 800; 
+            margin-bottom: 5px; color: white; box-shadow: 0 5px 0 #3bb3a9; 
         }
-        #input-display { 
-            background: white; color: var(--dark); width: 80%; max-width: 400px; 
-            padding: 10px; border-radius: 15px; text-align: center; font-size: 2.5em; 
-            min-height: 60px; margin-bottom: 15px; border: 4px solid #ddd; font-weight: 800;
+        .input-box { 
+            background: white; color: var(--dark); width: 90%; 
+            padding: 8px; border-radius: 12px; text-align: center; font-size: 1.8em; 
+            min-height: 45px; margin-bottom: 10px; border: 3px solid #ddd; font-weight: 800;
         }
         
-        /* --- NUMPAD --- */
-        #numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; max-width: 400px; }
-        .btn-num { 
-            padding: 18px; border: none; border-radius: 18px; background: white; 
-            color: var(--dark); font-size: 1.6em; font-weight: 800; cursor: pointer; 
-            box-shadow: 0 6px 0 #ccc; font-family: inherit;
+        /* --- NUMPAD FIX --- */
+        .numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; width: 100%; max-width: 280px; }
+        .btn-n { 
+            padding: 15px 5px; border: none; border-radius: 12px; background: white; 
+            color: var(--dark); font-size: 1.3em; font-weight: 800; cursor: pointer; 
+            box-shadow: 0 4px 0 #ccc; font-family: inherit;
         }
-        .btn-num:active { transform: translateY(4px); box-shadow: none; }
-        .btn-del { background: var(--red); color: white; box-shadow: 0 6px 0 #d65555; }
-        .btn-enter { background: #2ecc71; color: white; box-shadow: 0 6px 0 #27ae60; grid-column: span 2; }
+        .btn-n:active { transform: translateY(3px); box-shadow: none; }
+        .btn-del { background: var(--red); color: white; box-shadow: 0 4px 0 #d65555; }
+        .btn-ent { background: #2ecc71; color: white; box-shadow: 0 4px 0 #27ae60; grid-column: span 2; }
 
-        /* --- WIN OVERLAY --- */
-        #win-overlay { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.95); display: none; flex-direction: column; 
-            align-items: center; justify-content: center; z-index: 1000; 
-        }
+        /* --- ANIMASI --- */
+        .batu { position: absolute; font-size: 25px; z-index: 10; transition: transform 0.5s linear; }
+        .burn { animation: burnEffect 0.4s forwards; }
+        @keyframes burnEffect { 50% { filter: brightness(5) scale(1.3); } }
+
+        #win-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; }
+        
+        /* Mode 2 Player Layout */
+        .mode-2p #ui-wrapper { grid-template-columns: 1fr 1fr; }
+        .mode-2p .soal-box { font-size: 1.1em; }
+        .mode-2p .btn-n { padding: 10px 2px; font-size: 1.1em; }
     </style>
 </head>
-<body id="main">
+<body id="main-body">
 
     <div id="selection-screen">
         <div class="box-select">
-            <h1 style="color:var(--accent-yellow); font-family:'Permanent Marker'; font-size:2.5em; margin:0 0 20px 0;">MATH VS POCONG</h1>
+            <h1 style="color:var(--accent-yellow); font-family:'Permanent Marker'; margin:0 0 15px 0;">MATH VS POCONG</h1>
             
-            <p style="margin-bottom:10px; font-weight:bold;">PILIH OPERASI:</p>
+            <p style="margin:5px; font-size:0.9em;">MODE PERMAINAN:</p>
+            <div class="grid-select">
+                <button class="btn-sel active" onclick="setMode(1, this)">👤 1 Player</button>
+                <button class="btn-sel" onclick="setMode(2, this)">👥 2 Player</button>
+            </div>
+
+            <p style="margin:5px; font-size:0.9em;">OPERASI:</p>
             <div class="grid-select" id="op-select">
                 <button class="btn-sel active" onclick="setOp('+', this)">➕ Tambah</button>
                 <button class="btn-sel" onclick="setOp('-', this)">➖ Kurang</button>
                 <button class="btn-sel" onclick="setOp('x', this)">✖️ Kali</button>
                 <button class="btn-sel" onclick="setOp(':', this)">➗ Bagi</button>
-                <button class="btn-sel" style="grid-column: span 2;" onclick="setOp('campur', this)">🔀 Campuran</button>
             </div>
             
-            <p style="margin-bottom:10px; font-weight:bold;">TINGKAT KESULITAN:</p>
-            <div class="grid-select" id="lv-select" style="grid-template-columns: 1fr 1fr 1fr;">
+            <p style="margin:5px; font-size:0.9em;">LEVEL:</p>
+            <div class="grid-select" style="grid-template-columns: 1fr 1fr 1fr;">
                 <button class="btn-sel active" onclick="setLevel('mudah', this)">Mudah</button>
                 <button class="btn-sel" onclick="setLevel('sedang', this)">Sedang</button>
                 <button class="btn-sel" onclick="setLevel('ahli', this)">Ahli</button>
             </div>
 
-            <button onclick="startGame()" style="margin-top:20px; padding:15px 40px; background:#2ecc71; color:white; border:none; border-radius:50px; font-size:1.4em; font-weight:800; cursor:pointer; box-shadow:0 6px 0 #27ae60; width:100%;">MULAI PERANG!</button>
+            <button onclick="requestStart()" style="margin-top:15px; padding:12px; background:#2ecc71; color:white; border:none; border-radius:50px; font-size:1.2em; font-weight:800; cursor:pointer; width:100%;">MULAI GAME</button>
         </div>
-        <p style="margin-top:20px; font-size:12px; opacity:0.7;">Developed by Mashar | UPTD SD Negeri 2 Jaya Asri</p>
     </div>
 
     <div id="game-container">
         <div id="arena">
-            <div id="hp-container"><div id="hp-bar"></div></div>
-            <div id="siswa" class="char">🧑‍🎓</div>
-            <div id="pocong" class="char">👻</div>
+            <div class="hp-label" style="left:5%;">TIM A</div>
+            <div class="hp-box" style="left:5%;"><div id="hp-bar-1" style="width:100%; height:100%; background:var(--toska);"></div></div>
+            
+            <div class="hp-label" id="label-target" style="right:5%;">POCONG</div>
+            <div class="hp-box" style="right:5%;"><div id="hp-bar-2" style="width:100%; height:100%; background:var(--red);"></div></div>
+            
+            <div id="p1-char" class="char">🧑‍🎓</div>
+            <div id="p2-char" class="char">👻</div>
             <div id="projectiles"></div>
         </div>
 
-        <div id="ui-box">
-            <div id="soal-display">...</div>
-            <div id="input-display"></div>
-            <div id="numpad">
-                <button class="btn-num" onclick="press('1')">1</button>
-                <button class="btn-num" onclick="press('2')">2</button>
-                <button class="btn-num" onclick="press('3')">3</button>
-                <button class="btn-num" onclick="press('4')">4</button>
-                <button class="btn-num" onclick="press('5')">5</button>
-                <button class="btn-num" onclick="press('6')">6</button>
-                <button class="btn-num" onclick="press('7')">7</button>
-                <button class="btn-num" onclick="press('8')">8</button>
-                <button class="btn-num" onclick="press('9')">9</button>
-                <button class="btn-num btn-del" onclick="del()">HAPUS</button>
-                <button class="btn-num" onclick="press('0')">0</button>
-                <button class="btn-num btn-enter" onclick="check()">ENTER</button>
+        <div id="ui-wrapper">
+            <div class="player-panel" id="panel-1">
+                <div class="soal-box" id="q1">...</div>
+                <div class="input-box" id="in1"></div>
+                <div class="numpad">
+                    <button class="btn-n" onclick="press(1, 1)">1</button>
+                    <button class="btn-n" onclick="press(1, 2)">2</button>
+                    <button class="btn-n" onclick="press(1, 3)">3</button>
+                    <button class="btn-n" onclick="press(1, 4)">4</button>
+                    <button class="btn-n" onclick="press(1, 5)">5</button>
+                    <button class="btn-n" onclick="press(1, 6)">6</button>
+                    <button class="btn-n" onclick="press(1, 7)">7</button>
+                    <button class="btn-n" onclick="press(1, 8)">8</button>
+                    <button class="btn-n" onclick="press(1, 9)">9</button>
+                    <button class="btn-n btn-del" onclick="del(1)">DEL</button>
+                    <button class="btn-n" onclick="press(1, 0)">0</button>
+                    <button class="btn-n btn-ent" onclick="check(1)">ENTER</button>
+                </div>
+            </div>
+            <div class="player-panel" id="panel-2" style="display:none;">
+                <div class="soal-box" id="q2" style="background:var(--red); box-shadow:0 5px 0 #d65555;">...</div>
+                <div class="input-box" id="in2"></div>
+                <div class="numpad">
+                    <button class="btn-n" onclick="press(2, 1)">1</button>
+                    <button class="btn-n" onclick="press(2, 2)">2</button>
+                    <button class="btn-n" onclick="press(2, 3)">3</button>
+                    <button class="btn-n" onclick="press(2, 4)">4</button>
+                    <button class="btn-n" onclick="press(2, 5)">5</button>
+                    <button class="btn-n" onclick="press(2, 6)">6</button>
+                    <button class="btn-n" onclick="press(2, 7)">7</button>
+                    <button class="btn-n" onclick="press(2, 8)">8</button>
+                    <button class="btn-n" onclick="press(2, 9)">9</button>
+                    <button class="btn-n btn-del" onclick="del(2)">DEL</button>
+                    <button class="btn-n" onclick="press(2, 0)">0</button>
+                    <button class="btn-n btn-ent" onclick="check(2)">ENTER</button>
+                </div>
             </div>
         </div>
     </div>
 
     <div id="win-overlay">
-        <h1 style="font-family: 'Permanent Marker'; font-size: 3.5em; color: var(--accent-yellow); margin:0;">POCONG KALAH!</h1>
-        <p style="font-size: 1.5em; margin: 20px 0;">Hebat! Matematika kamu luar biasa.</p>
-        <div style="font-size: 80px; margin-bottom: 30px;">🏆🔥💀</div>
-        <button onclick="location.reload()" style="padding: 15px 50px; font-size: 1.2em; border-radius: 50px; cursor: pointer; background:white; font-weight:bold; border:none; box-shadow:0 5px 0 #ccc;">MAIN LAGI</button>
+        <h1 id="win-txt" style="font-family:'Permanent Marker'; font-size:3em; color:var(--accent-yellow);"></h1>
+        <button onclick="location.reload()" style="padding:15px 40px; border-radius:50px; cursor:pointer; font-weight:bold; border:none;">MAIN LAGI</button>
     </div>
 
     <script>
-        let currentAnswer = 0;
-        let pocongHP = 10;
-        let userInput = "";
-        let selectedOp = "+";
-        let selectedLevel = "mudah";
+        let gameMode = 1, op = '+', lv = 'mudah';
+        let ans1 = 0, ans2 = 0, hp1 = 10, hp2 = 10;
+        let in1 = "", in2 = "";
 
-        function setOp(op, btn) {
-            selectedOp = op;
-            document.querySelectorAll('#op-select .btn-sel').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-        }
+        function setMode(m, b) { gameMode = m; updateActive(b, '.btn-sel'); }
+        function setOp(o, b) { op = o; updateActive(b, '#op-select .btn-sel'); }
+        function setLevel(l, b) { lv = l; updateActive(b, '#lv-select .btn-sel'); }
+        function updateActive(b, q) { document.querySelectorAll(q).forEach(btn => btn.classList.remove('active')); b.classList.add('active'); }
 
-        function setLevel(lv, btn) {
-            selectedLevel = lv;
-            document.querySelectorAll('#lv-select .btn-sel').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-        }
-
-        function startGame() {
-            document.getElementById('selection-screen').style.display = 'none';
-            document.getElementById('game-container').style.display = 'block';
-            pocongHP = 10;
-            document.getElementById('hp-bar').style.width = "100%";
-            generateSoal();
-        }
-
-        function generateSoal() {
-            let a, b, op;
-            let max = (selectedLevel === "mudah") ? 10 : (selectedLevel === "sedang") ? 30 : 100;
+        function requestStart() {
+            let el = document.documentElement;
+            if (el.requestFullscreen) el.requestFullscreen();
             
-            op = (selectedOp === "campur") ? ["+", "-", "x", ":"][Math.floor(Math.random()*4)] : selectedOp;
+            document.getElementById('selection-screen').style.display = 'none';
+            document.getElementById('game-container').style.display = 'flex';
+            
+            if(gameMode === 2) {
+                document.getElementById('panel-2').style.display = 'flex';
+                document.getElementById('game-container').classList.add('mode-2p');
+                document.getElementById('label-target').innerText = "TIM B";
+                document.getElementById('p2-char').innerText = "🧑‍🎓";
+                document.getElementById('hp-bar-2').style.backgroundColor = "var(--red)";
+            }
+            hp1 = 10; hp2 = 10;
+            gen(1); gen(2);
+        }
 
-            if (op === "+") {
-                a = Math.floor(Math.random() * max) + 1;
-                b = Math.floor(Math.random() * max) + 1;
-                currentAnswer = a + b;
-                displaySoal(`${a} + ${b}`);
-            } 
-            else if (op === "-") {
-                a = Math.floor(Math.random() * max) + 10;
-                b = Math.floor(Math.random() * a) + 1;
-                currentAnswer = a - b;
-                displaySoal(`${a} - ${b}`);
-            } 
-            else if (op === "x") {
-                let mX = (selectedLevel === "mudah") ? 5 : (selectedLevel === "sedang") ? 10 : 15;
-                a = Math.floor(Math.random() * mX) + 1;
-                b = Math.floor(Math.random() * mX) + 1;
-                currentAnswer = a * b;
-                displaySoal(`${a} x ${b}`);
-            } 
-            else if (op === ":") {
-                let mD = (selectedLevel === "mudah") ? 5 : (selectedLevel === "sedang") ? 10 : 12;
-                let b_div = Math.floor(Math.random() * mD) + 1;
-                currentAnswer = Math.floor(Math.random() * mD) + 1;
-                a = b_div * currentAnswer;
-                displaySoal(`${a} : ${b_div}`);
+        function gen(p) {
+            let max = lv === 'mudah' ? 10 : lv === 'sedang' ? 30 : 100;
+            let a, b, res, sign = op;
+            if(op === 'campur') sign = ['+','-','x',':'][Math.floor(Math.random()*4)];
+
+            if(sign === '+') { a = r(max); b = r(max); res = a+b; }
+            else if(sign === '-') { a = r(max)+10; b = r(a); res = a-b; }
+            else if(sign === 'x') { let m = lv==='mudah'?5:10; a=r(m); b=r(m); res=a*b; }
+            else { let m = lv==='mudah'?5:10; b=r(m)+1; res=r(m); a=b*res; }
+
+            if(p === 1) { ans1 = res; document.getElementById('q1').innerText = `${a} ${sign} ${b} = ?`; in1 = ""; updateIn(1); }
+            else { ans2 = res; document.getElementById('q2').innerText = `${a} ${sign} ${b} = ?`; in2 = ""; updateIn(2); }
+        }
+
+        function r(m) { return Math.floor(Math.random() * m) + 1; }
+
+        function press(p, n) {
+            if(p === 1) { if(in1.length < 5) in1 += n; updateIn(1); }
+            else { if(in2.length < 5) in2 += n; updateIn(2); }
+        }
+
+        function del(p) {
+            if(p === 1) { in1 = in1.slice(0,-1); updateIn(1); }
+            else { in2 = in2.slice(0,-1); updateIn(2); }
+        }
+
+        function updateIn(p) { document.getElementById('in'+p).innerText = (p===1?in1:in2); }
+
+        function check(p) {
+            let user = parseInt(p===1?in1:in2);
+            let correct = (p===1?ans1:ans2);
+            if(user === correct) { throwBatu(p); }
+            else { 
+                let panel = document.getElementById('panel-'+p);
+                panel.style.background = "#ffcccc";
+                setTimeout(()=>panel.style.background="transparent", 200);
+                if(p===1) in1=""; else in2=""; updateIn(p);
             }
         }
 
-        function displaySoal(txt) {
-            document.getElementById('soal-display').innerText = txt + " = ?";
-            userInput = "";
-            updateDisplay();
-        }
-
-        function press(num) {
-            if(userInput.length < 6) userInput += num;
-            updateDisplay();
-        }
-
-        function del() {
-            userInput = userInput.slice(0, -1);
-            updateDisplay();
-        }
-
-        function updateDisplay() {
-            document.getElementById('input-display').innerText = userInput;
-        }
-
-        function check() {
-            if (userInput === "") return;
-            if (parseInt(userInput) === currentAnswer) {
-                throwStone();
-            } else {
-                const ui = document.getElementById('ui-box');
-                ui.style.background = "#ffcccc";
-                setTimeout(() => ui.style.background = "#eef2f5", 300);
-                userInput = "";
-                updateDisplay();
-            }
-        }
-
-        function throwStone() {
-            const projContainer = document.getElementById('projectiles');
-            const batu = document.createElement('div');
-            batu.className = 'batu';
-            batu.innerText = '🪨';
-            batu.style.left = '15%';
+        function throwBatu(p) {
+            let batu = document.createElement('div');
+            batu.className = 'batu'; batu.innerText = '🪨';
             batu.style.bottom = '20%';
-            projContainer.appendChild(batu);
+            batu.style.left = (p===1 ? '15%' : '80%');
+            document.getElementById('projectiles').appendChild(batu);
 
             setTimeout(() => {
-                batu.style.transform = 'translate(70vw, -150px) rotate(360deg)';
+                batu.style.transform = `translate(${(p===1?'65vw':'-65vw')}, -100px) rotate(360deg)`;
             }, 50);
 
             setTimeout(() => {
                 batu.remove();
-                hitPocong();
-            }, 600);
+                hit(p);
+            }, 500);
         }
 
-        function hitPocong() {
-            const pocong = document.getElementById('pocong');
-            pocongHP--;
+        function hit(p) {
+            if(p === 1) hp2--; else hp1--;
             
-            pocong.classList.add('burn');
-            setTimeout(() => pocong.classList.remove('burn'), 500);
+            let target = document.getElementById(p===1 ? 'p2-char' : 'p1-char');
+            target.classList.add('burn');
+            setTimeout(()=>target.classList.remove('burn'), 300);
 
-            document.getElementById('hp-bar').style.width = (pocongHP * 10) + "%";
+            document.getElementById('hp-bar-1').style.width = (hp1*10)+"%";
+            document.getElementById('hp-bar-2').style.width = (hp2*10)+"%";
 
-            if (pocongHP <= 0) {
+            if(hp1 <= 0 || hp2 <= 0) {
                 document.getElementById('win-overlay').style.display = 'flex';
-            } else {
-                generateSoal();
-            }
+                document.getElementById('win-txt').innerText = hp2 <= 0 ? "TIM A MENANG!" : "TIM B MENANG!";
+            } else { gen(p); }
         }
     </script>
 </body>
