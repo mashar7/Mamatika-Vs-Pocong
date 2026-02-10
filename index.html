@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ghost Math - 75 Inch Panel Edition</title>
+    <title>Ghost Math - 75 Inch Panel Optimized</title>
     <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Quicksand:wght@700;800&display=swap" rel="stylesheet">
     <style>
         :root {
             --toska: #4ECDC4;
             --red: #FF6B6B;
-            --dark: #1a1a1a;
+            --dark: #0a0a0a;
             --accent-yellow: #FFE66D;
         }
 
@@ -27,12 +27,12 @@
         }
         .box-select {
             background: rgba(255, 255, 255, 0.1); padding: 40px; 
-            border-radius: 40px; width: 600px; backdrop-filter: blur(15px);
+            border-radius: 40px; width: 650px; backdrop-filter: blur(15px);
             border: 2px solid rgba(255,255,255,0.2); text-align: center;
         }
         .btn-sel { 
             padding: 15px; border: none; border-radius: 15px; 
-            background: white; cursor: pointer; font-weight: bold; font-size: 1.1em;
+            background: white; cursor: pointer; font-weight: bold; font-size: 1.2em;
         }
         .btn-sel.active { background: var(--accent-yellow); border: 3px solid #f39c12; }
         .grid-select { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
@@ -40,98 +40,88 @@
         /* --- ARENA (TOP HALF) --- */
         #game-container { display: none; width: 100vw; height: 100vh; flex-direction: column; }
         #arena { 
-            height: 50vh; background: linear-gradient(to bottom, #0f0c29, #302b63, #24243e); 
-            position: relative; overflow: hidden;
+            height: 45vh; background: linear-gradient(to bottom, #0f0c29, #302b63, #24243e); 
+            position: relative; overflow: hidden; border-bottom: 2px solid #333;
         }
         
-        /* Karakter dibuat JAUH lebih besar untuk layar 75" */
-        .char { position: absolute; bottom: 5%; width: 250px; transition: 0.3s; z-index: 5; }
-        .char img { width: 100%; height: auto; filter: drop-shadow(0 0 20px rgba(0,0,0,0.5)); }
+        .char { position: absolute; bottom: 8%; width: 260px; transition: 0.3s; z-index: 5; }
+        .char img { width: 100%; height: auto; filter: drop-shadow(0 0 25px rgba(0,0,0,0.6)); }
         #p1-char { left: 15%; }
         #p2-char { right: 15%; transform: scaleX(-1); }
 
-        .hp-box { position: absolute; top: 40px; width: 35%; height: 25px; background: rgba(0,0,0,0.6); border-radius: 20px; border: 3px solid #444; overflow: hidden; }
+        .hp-box { position: absolute; top: 40px; width: 35%; height: 30px; background: rgba(0,0,0,0.7); border-radius: 20px; border: 3px solid #555; overflow: hidden; }
         #hp-bar-1 { width: 100%; height: 100%; background: var(--toska); transition: 0.4s; }
         #hp-bar-2 { width: 100%; height: 100%; background: var(--red); transition: 0.4s; }
 
         /* --- UI WRAPPER (BOTTOM HALF) --- */
         #ui-wrapper { 
             height: 50vh; display: flex; justify-content: space-between; 
-            align-items: flex-end; padding: 20px; background: #0a0a0a;
+            align-items: center; padding: 0 30px; background: #0a0a0a;
         }
 
-        /* Panel diletakkan di TEPI layar */
         .panel-card { 
-            width: 380px; background: rgba(255, 255, 255, 0.05); 
-            border-radius: 40px; display: flex; flex-direction: column; 
-            padding: 20px; box-sizing: border-box; border: 2px solid rgba(255,255,255,0.1);
+            width: 420px; height: 95%; background: rgba(255, 255, 255, 0.05); 
+            border-radius: 45px; display: flex; flex-direction: column; 
+            padding: 20px; box-sizing: border-box; border: 2px solid rgba(255,255,255,0.15);
+            justify-content: space-between;
         }
-        #card-1 { border-left: 10px solid var(--toska); }
-        #card-2 { border-right: 10px solid var(--red); }
+        #card-1 { border-left: 12px solid var(--toska); }
+        #card-2 { border-right: 12px solid var(--red); }
 
         .soal-box { 
-            background: white; padding: 15px; border-radius: 20px; 
-            text-align: center; font-size: 2.5em; font-weight: 800; 
-            margin-bottom: 15px; color: #000; 
+            background: #fff; padding: 15px; border-radius: 20px; 
+            text-align: center; font-size: 3em; font-weight: 900; 
+            color: #000; box-shadow: 0 10px 0 #ddd;
         }
         .input-box { 
-            background: #222; color: var(--accent-yellow); width: 100%; 
-            padding: 10px; border-radius: 15px; text-align: center; font-size: 2.8em; 
-            min-height: 70px; margin-bottom: 20px; border: 3px solid #444; font-weight: 800;
+            background: #1a1a1a; color: var(--accent-yellow); width: 100%; 
+            padding: 5px 0; border-radius: 15px; text-align: center; font-size: 3.2em; 
+            min-height: 80px; border: 3px solid #333; font-weight: 900;
+            display: flex; align-items: center; justify-content: center;
         }
         
-        /* NUMPAD 3 KOLOM AGAR RAMPING DI TEPI */
-        .numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 100%; }
+        .numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; }
         .btn-n { 
-            padding: 25px 0; border: none; border-radius: 20px; background: #fff; 
-            color: #000; font-size: 1.8em; font-weight: 800; cursor: pointer; 
+            padding: 20px 0; border: none; border-radius: 20px; background: #fff; 
+            color: #000; font-size: 2em; font-weight: 800; cursor: pointer; 
             box-shadow: 0 6px 0 #bbb; font-family: inherit;
         }
         .btn-n:active { transform: translateY(4px); box-shadow: none; }
         .btn-del { background: var(--red); color: white; box-shadow: 0 6px 0 #b33939; }
         .btn-ent { background: #2ecc71; color: white; box-shadow: 0 6px 0 #219150; }
 
-        /* ANIMASI */
-        .batu { position: absolute; font-size: 50px; z-index: 10; transition: transform 0.6s linear; }
-        .burn { animation: burnEffect 0.6s forwards; }
-        @keyframes burnEffect {
-            0% { filter: brightness(1); }
-            50% { filter: brightness(4) saturate(2); transform: scale(1.4); }
-            100% { filter: brightness(1); transform: scale(1); }
+        /* FOOTER */
+        .footer-mashar { 
+            height: 5vh; background: #1a1a1a; color: #888; 
+            display: flex; align-items: center; justify-content: center; 
+            font-size: 14px; border-top: 1px solid #333;
         }
+        .footer-mashar a { color: var(--accent-yellow); text-decoration: none; font-weight: bold; }
 
-        #win-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; }
-        .footer { position: absolute; bottom: 5px; width: 100%; text-align: center; color: #444; font-size: 14px; }
+        #win-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; display: none; }
     </style>
 </head>
 <body id="main-body">
 
     <div id="selection-screen">
         <div class="box-select">
-            <h1 style="color:var(--accent-yellow); font-family:'Permanent Marker'; font-size: 3.5em; margin:0 0 30px 0;">GHOST MATH</h1>
-            
-            <p style="font-weight:800; font-size: 1.2em;">MODE PERMAINAN:</p>
+            <h1 style="color:var(--accent-yellow); font-family:'Permanent Marker'; font-size: 4em; margin:0 0 30px 0;">GHOST MATH</h1>
             <div class="grid-select">
                 <button class="btn-sel active" onclick="setMode(1, this)">👤 1 PLAYER</button>
                 <button class="btn-sel" onclick="setMode(2, this)">👥 2 PLAYER</button>
             </div>
-
-            <p style="font-weight:800; font-size: 1.2em;">TINGKAT KESULITAN:</p>
             <div class="grid-select">
                 <button class="btn-sel active" onclick="setLevel('mudah', this)">KELAS 1-2</button>
                 <button class="btn-sel" onclick="setLevel('sedang', this)">KELAS 3-4</button>
-                <button class="btn-sel" style="grid-column: span 2;" onclick="setLevel('ahli', this)">KELAS 5-6 (AHLI)</button>
+                <button class="btn-sel" style="grid-column: span 2;" onclick="setLevel('ahli', this)">KELAS 5-6</button>
             </div>
-
-            <p style="font-weight:800; font-size: 1.2em;">OPERASI:</p>
             <div class="grid-select" id="op-select">
                 <button class="btn-sel active" onclick="setOp('+', this)">TAMBAH (+)</button>
                 <button class="btn-sel" onclick="setOp('-', this)">KURANG (-)</button>
                 <button class="btn-sel" onclick="setOp('x', this)">KALI (×)</button>
                 <button class="btn-sel" onclick="setOp(':', this)">BAGI (÷)</button>
             </div>
-            
-            <button onclick="requestStart()" style="margin-top:30px; padding:20px; background:#2ecc71; color:white; border:none; border-radius:50px; font-size:1.8em; font-weight:800; cursor:pointer; width:100%; box-shadow: 0 8px 0 #219150;">MULAI PERANG</button>
+            <button onclick="requestStart()" style="margin-top:30px; padding:25px; background:#2ecc71; color:white; border:none; border-radius:60px; font-size:2em; font-weight:800; cursor:pointer; width:100%; box-shadow: 0 10px 0 #219150;">MULAI PERANG</button>
         </div>
     </div>
 
@@ -139,7 +129,6 @@
         <div id="arena">
             <div class="hp-box" style="left:5%;"><div id="hp-bar-1"></div></div>
             <div class="hp-box" style="right:5%;"><div id="hp-bar-2"></div></div>
-            
             <div id="p1-char" class="char"><img src="assets/images/pocong.png"></div>
             <div id="p2-char" class="char"><img src="assets/images/hantu.png"></div>
             <div id="projectiles"></div>
@@ -147,7 +136,7 @@
 
         <div id="ui-wrapper">
             <div class="panel-card" id="card-1">
-                <div class="soal-box" id="q1">...</div>
+                <div class="soal-box" id="q1">?</div>
                 <div class="input-box" id="in1"></div>
                 <div class="numpad">
                     <button class="btn-n" onclick="press(1, 1)">1</button>
@@ -166,7 +155,7 @@
             </div>
 
             <div class="panel-card" id="card-2" style="visibility:hidden;">
-                <div class="soal-box" id="q2">...</div>
+                <div class="soal-box" id="q2">?</div>
                 <div class="input-box" id="in2"></div>
                 <div class="numpad">
                     <button class="btn-n" onclick="press(2, 1)">1</button>
@@ -184,15 +173,19 @@
                 </div>
             </div>
         </div>
-        <div class="footer">UPTD SD Negeri 2 Jaya Asri | Digital Panel 75" Optimization</div>
+        
+        <div class="footer-mashar">
+            UPTD SD Negeri 2 Jaya Asri | © <a href="https://www.facebook.com/7hariday" target="_blank">Mashar</a>
+        </div>
     </div>
 
     <div id="win-overlay">
-        <h1 id="win-txt" style="font-family:'Permanent Marker'; font-size:5em; color:var(--accent-yellow);"></h1>
-        <button onclick="location.reload()" style="padding:20px 60px; border-radius:50px; cursor:pointer; font-weight:bold; border:none; font-size:2em; background:white;">MAIN LAGI</button>
+        <h1 id="win-txt" style="font-family:'Permanent Marker'; font-size:6em; color:var(--accent-yellow); margin:0;">🏆</h1>
+        <button onclick="location.reload()" style="padding:25px 80px; border-radius:60px; cursor:pointer; font-weight:bold; border:none; font-size:2.5em; background:white;">MAIN LAGI</button>
     </div>
 
     <script>
+        // Logika game tetap sama agar stabil
         let gameMode = 1, op = '+', level = 'mudah';
         let ans1 = 0, ans2 = 0, hp1 = 10, hp2 = 10;
         let in1 = "", in2 = "";
@@ -207,64 +200,60 @@
             if (el.requestFullscreen) el.requestFullscreen();
             document.getElementById('selection-screen').style.display = 'none';
             document.getElementById('game-container').style.display = 'flex';
-            
-            if(gameMode === 2) {
-                document.getElementById('card-2').style.visibility = 'visible';
-                document.getElementById('p2-char').innerHTML = '<img src="assets/images/hantu.png">';
-            } else {
-                // Player vs Bot (Pocong vs Hantu)
-                document.getElementById('card-2').style.display = 'none';
-            }
+            if(gameMode === 2) document.getElementById('card-2').style.visibility = 'visible';
+            else document.getElementById('card-2').style.display = 'none';
             hp1 = 10; hp2 = 10;
             gen(1); if(gameMode === 2) gen(2);
         }
 
         function gen(p) {
-            let a, b, res;
-            let m = level === 'mudah' ? 10 : level === 'sedang' ? 30 : 100;
-            
+            let a, b, res, m = level === 'mudah' ? 10 : level === 'sedang' ? 30 : 100;
             if (op === '+') { a = r(m); b = r(m); res = a+b; }
             else if (op === '-') { a = r(m)+m; b = r(a); res = a-b; }
             else if (op === 'x') { let mx = level==='mudah'?5:12; a=r(mx); b=r(mx); res=a*b; }
             else { let mb = level==='mudah'?5:12; b=r(mb)+1; res=r(mb); a=b*res; }
-
             let sym = op === ':' ? '÷' : op === 'x' ? '×' : op;
-            if(p === 1) { ans1 = res; document.getElementById('q1').innerText = `${a} ${sym} ${b}`; in1 = ""; updateIn(1); }
-            else { ans2 = res; document.getElementById('q2').innerText = `${a} ${sym} ${b}`; in2 = ""; updateIn(2); }
+            document.getElementById('q'+p).innerText = `${a} ${sym} ${b}`;
+            if(p===1) { ans1 = res; in1 = ""; } else { ans2 = res; in2 = ""; }
+            updateIn(p);
         }
 
         function r(m) { return Math.floor(Math.random() * m) + 1; }
-        function press(p, n) { if(p === 1) { if(in1.length < 5) in1 += n; updateIn(1); } else { if(in2.length < 5) in2 += n; updateIn(2); } }
-        function del(p) { if(p === 1) { in1 = in1.slice(0,-1); updateIn(1); } else { in2 = in2.slice(0,-1); updateIn(2); } }
+        function press(p, n) { if(p === 1) { if(in1.length < 5) in1 += n; } else { if(in2.length < 5) in2 += n; } updateIn(p); }
+        function del(p) { if(p === 1) in1 = in1.slice(0,-1); else in2 = in2.slice(0,-1); updateIn(p); }
         function updateIn(p) { document.getElementById('in'+p).innerText = (p===1?in1:in2); }
 
         function check(p) {
+            if((p===1?in1:in2) === "") return;
             let user = parseInt(p===1?in1:in2);
             let correct = (p===1?ans1:ans2);
             if(user === correct) { throwBatu(p); }
             else { 
                 let card = document.getElementById('card-'+p);
                 card.style.borderColor = "red";
-                setTimeout(()=>card.style.borderColor="rgba(255,255,255,0.1)", 300);
+                setTimeout(()=>card.style.borderColor="rgba(255,255,255,0.15)", 300);
                 if(p===1) in1=""; else in2=""; updateIn(p);
             }
         }
 
         function throwBatu(p) {
             let batu = document.createElement('div');
-            batu.className = 'batu'; batu.innerText = '🪨';
+            batu.style.position = 'absolute';
+            batu.innerText = '🪨';
+            batu.style.fontSize = '60px';
             batu.style.bottom = '20%';
             batu.style.left = (p===1 ? '20%' : '75%');
+            batu.style.transition = 'transform 0.6s linear';
             document.getElementById('projectiles').appendChild(batu);
-            setTimeout(() => { batu.style.transform = `translate(${(p===1?'55vw':'-55vw')}, -150px) rotate(720deg)`; }, 50);
+            setTimeout(() => { batu.style.transform = `translate(${(p===1?'55vw':'-55vw')}, -180px) rotate(720deg)`; }, 50);
             setTimeout(() => { batu.remove(); hit(p); }, 600);
         }
 
         function hit(p) {
             if(p === 1) hp2--; else hp1--;
             let target = document.getElementById(p === 1 ? 'p2-char' : 'p1-char');
-            target.classList.add('burn');
-            setTimeout(()=>target.classList.remove('burn'), 600);
+            target.style.filter = "brightness(4) saturate(2)";
+            setTimeout(()=>target.style.filter="brightness(1)", 600);
             document.getElementById('hp-bar-1').style.width = (hp1*10)+"%";
             document.getElementById('hp-bar-2').style.width = (hp2*10)+"%";
             if(hp1 <= 0 || hp2 <= 0) {
